@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Liquid Glass UI</title>
+<style>
+/* ============================================================
+   LIQUID GLASS UI — Tiered Design System
+   "Use tiers early, stop inventing new glass per screen"
+   ============================================================ */
+
+:root {
+  /* Color Tokens */
+  --bg-blush: #E8D4D1;
+  --bg-lavender: #A9A8C3;
+  --bg-slate: #77879C;
+  --glass-white: rgba(255,255,255,0.24);
+  --glass-border: rgba(255,255,255,0.55);
+  --glass-edge-inner: rgba(255,255,255,0.38);
+  --text-primary: #25232C;
+  --text-secondary: #66616F;
+  --accent-violet: #6742F5;
+  --accent-cyan: #5DE2DC;
+  --accent-pink: #F3A6C9;
+  --accent-green: #48B982;
+  --accent-teal: #0D9488;
+
+  /* Glass Tiers */
+  --glass-primary: rgba(255,255,255,.24);
+  --glass-secondary: rgba(255,255,255,.18);
+  --glass-floating: rgba(255,255,255,.12);
+
+  /* Radius Tiers */
+  --radius-panel: clamp(28px, 4vw, 48px);
+  --radius-card: 28px;
+  --radius-control: 999px;
+  --radius-icon: 50%;
+
+  /* Spacing */
+  --space-page: clamp(16px, 4vw, 44px);
+  --space-panel: clamp(20px, 3vw, 48px);
+  --space-gap: clamp(12px, 2vw, 24px);
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --heading-weight: 650;
+  --body-weight: 400;
+  --heading-size: clamp(24px, 3vw, 42px);
+  --body-size: clamp(14px, 1.2vw, 18px);
+
+  /* Effects */
+  --blur-primary: 24px;
+  --blur-secondary: 16px;
+  --blur-floating: 12px;
+  --shadow-panel: 0 32px 80px rgba(42,35,70,.22);
+  --shadow-control: 0 12px 26px rgba(50,40,90,.20);
+  --shadow-soft: 0 4px 16px rgba(42,35,70,.08);
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --duration-fast: .2s;
+  --duration-normal: .35s;
+  --duration-slow: .5s;
+}
+
+/* ---------- Reset ---------- */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-sans);
+  font-weight:var(--body-weight);
+  font-size:var(--body-size);
+  color:var(--text-primary);
+  min-height:100vh;
+  min-height:100svh;
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+img{max-width:100%;display:block}
+
+/* ============================================================
+   AMBIENT LIGHTING - Continuous, Route-Agnostic
+   ============================================================ */
+.ambient{
+  position:fixed;
+  inset:-15%;
+  z-index:0;
+  pointer-events:none;
+}
+.ambient .light{
+  position:absolute;
+  border-radius:50%;
+  transition:transform 1.8s var(--ease), opacity 1.8s var(--ease);
+  will-change:transform,opacity;
+}
+.ambient .warm{
+  width:45vw;height:45vw;left:5%;top:8%;
+  background:rgba(255,190,180,.55);
+}
+.ambient .violet{
+  width:40vw;height:40vw;right:8%;top:30%;
+  background:rgba(160,125,255,.42);
+}
+.ambient .cyan{
+  width:38vw;height:38vw;left:55%;bottom:5%;
+  background:rgba(80,225,225,.36);
+}
+
+/* ============================================================
+   GLASS TIERS - Consistent Application Across All Screens
+   ============================================================ */
+
+/* Primary Glass - Main containers, main panels */
+.glass-primary{
+  position:relative;
+  isolation:isolate;
+  background:var(--glass-primary);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-panel);
+  backdrop-filter:blur(var(--blur-primary)) saturate(1.35);
+  -webkit-backdrop-filter:blur(var(--blur-primary)) saturate(1.35);
+  box-shadow:var(--shadow-panel);
+}
+.glass-primary::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.34),transparent 42%,rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.14);
+}
+
+/* Secondary Glass - Cards, smaller components */
+.glass-secondary{
+  position:relative;
+  isolation:isolate;
+  background:var(--glass-secondary);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-card);
+  backdrop-filter:blur(var(--blur-secondary)) saturate(1.3);
+  -webkit-backdrop-filter:blur(var(--blur-secondary)) saturate(1.3);
+  box-shadow:var(--shadow-soft);
+}
+.glass-secondary::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 50%);
+}
+
+/* Floating Glass - Controls, badges, icons */
+.glass-floating{
+  position:relative;
+  isolation:isolate;
+  background:var(--glass-floating);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(var(--blur-floating)) saturate(1.2);
+  -webkit-backdrop-filter:blur(var(--blur-floating)) saturate(1.2);
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app{
+  position:relative;
+  z-index:1;
+  max-width:1200px;
+  margin:0 auto;
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  padding:0 var(--space-page) 40px;
+}
+.screen{
+  display:none;
+  flex:1;
+  flex-direction:column;
+  animation:pageEnter .5s var(--ease);
+}
+.screen.active{display:flex}
+
+@keyframes pageEnter{
+  from{opacity:0;transform:scale(.97) translateY(12px)}
+  to{opacity:1;transform:none}
+}
+@keyframes pageExit{
+  from{opacity:1;transform:scale(1)}
+  to{opacity:0;transform:scale(.985)}
+}
+
+/* ============================================================
+   UI COMPONENTS - Using Tiered Glass
+   ============================================================ */
+
+/* Top Bar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 0 16px;gap:16px;
+}
+.topbar .title{
+  font-family:var(--font-serif);
+  font-size:1.25rem;font-weight:700;color:var(--text-primary);
+  letter-spacing:.02em;flex:1;text-align:center;
+}
+.topbar .title small{
+  display:block;font-family:var(--font-sans);
+  font-size:.65rem;color:var(--text-secondary);font-weight:400;
+  letter-spacing:.14em;text-transform:uppercase;margin-top:2px;
+}
+
+/* Icon Button - Floating tier */
+.icon-btn{
+  width:40px;height:40px;border-radius:var(--radius-icon);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-primary);font-size:1.1rem;
+  background:var(--glass-white);border:1px solid var(--glass-border);
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+  transition:background var(--duration-fast) var(--ease),transform var(--duration-fast) var(--ease);
+  flex-shrink:0;
+}
+.icon-btn:hover{background:var(--glass-strong);transform:scale(1.05)}
+.icon-btn:active{transform:scale(.95)}
+
+/* Buttons - Primary tier with gradient */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:14px 28px;
+  border-radius:var(--radius-control);
+  font-size:.95rem;font-weight:700;letter-spacing:.01em;
+  transition:transform var(--duration-fast) var(--ease),box-shadow var(--duration-fast) var(--ease),opacity var(--duration-fast);
+  border:1px solid var(--glass-border);
+  position:relative;overflow:hidden;
+}
+.btn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 50%);
+}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* Primary Button - Violet gradient */
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent-violet),var(--accent-violet-light));
+  color:#fff;
+  box-shadow:var(--shadow-control);
+}
+.btn-primary:hover{box-shadow:0 16px 32px rgba(103,66,245,.30)}
+
+/* Secondary Button - Cyan gradient */
+.btn-secondary{
+  background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));
+  color:#fff;
+  box-shadow:0 12px 26px rgba(13,148,136,.20);
+}
+.btn-secondary:hover{box-shadow:0 16px 32px rgba(13,148,136,.28)}
+
+/* Ghost Button - Secondary tier */
+.btn-ghost{
+  background:var(--glass-white);
+  color:var(--text-primary);
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+}
+.btn-ghost:hover{background:var(--glass-strong)}
+
+.btn-sm{padding:10px 20px;font-size:.85rem}
+.btn-lg{padding:18px 36px;font-size:1.05rem}
+.btn-icon{width:44px;height:44px;padding:0;border-radius:var(--radius-icon)}
+
+/* Input - Floating tier */
+.input-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+  background:var(--glass-white);
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-control);
+  padding:0 18px;gap:10px;
+  transition:border-color var(--duration-fast) var(--ease),box-shadow var(--duration-fast) var(--ease);
+}
+.input-wrap:focus-within{
+  border-color:var(--accent-violet);
+  box-shadow:0 0 0 3px rgba(103,66,245,.15);
+}
+.input-wrap input{
+  flex:1;padding:14px 0;background:none;border:none;outline:none;
+  font-size:1rem;color:var(--text-primary);min-width:0;
+}
+.input-wrap input::placeholder{color:var(--text-secondary);opacity:.7}
+.input-wrap .lead-icon{color:var(--text-secondary);font-size:1rem;flex-shrink:0}
+.input-wrap .trail-icon{
+  width:32px;height:32px;border-radius:var(--radius-icon);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--accent-violet);color:#fff;font-size:.9rem;flex-shrink:0;
+}
+
+/* Toggle Switch */
+.toggle{
+  width:48px;height:28px;border-radius:var(--radius-control);
+  background:rgba(255,255,255,.3);position:relative;
+  transition:background .25s var(--ease);flex-shrink:0;
+  border:1px solid var(--glass-border);
+}
+.toggle::after{
+  content:"";
+  position:absolute;top:3px;left:3px;width:20px;height:20px;
+  border-radius:50%;background:#fff;
+  transition:transform .25s var(--ease);
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle.on{background:var(--accent-green)}
+.toggle.on::after{transform:translateX(20px)}
+
+/* Chips / Tags - Secondary tier */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  padding:8px 18px;border-radius:var(--radius-control);
+  font-size:.82rem;font-weight:600;
+  border:1px solid var(--glass-border);color:var(--text-secondary);
+  background:var(--glass-white);
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+  transition:all var(--duration-fast) var(--ease);
+}
+.chip:hover{background:var(--glass-strong)}
+.chip.on{
+  background:var(--accent-violet);
+  border-color:var(--accent-violet);
+  color:#fff;
+  box-shadow:0 4px 12px rgba(103,66,245,.25);
+}
+
+/* Segmented Control - Secondary tier */
+.segmented{
+  display:inline-flex;
+  background:var(--glass-white);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-control);
+  padding:4px;gap:2px;
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+}
+.segmented button{
+  padding:8px 20px;border-radius:var(--radius-control);
+  font-size:.85rem;font-weight:600;color:var(--text-secondary);
+  transition:all var(--duration-fast) var(--ease);
+}
+.segmented button.on{
+  background:var(--accent-violet);
+  color:#fff;
+  box-shadow:0 2px 8px rgba(103,66,245,.3);
+}
+
+/* Greeting */
+.greeting{margin:8px 0 4px}
+.greeting .small{font-size:.82rem;color:var(--text-secondary)}
+.greeting h2{
+  font-family:var(--font-serif);font-size:1.8rem;font-weight:700;
+  color:var(--text-primary);letter-spacing:-.01em;
+}
+
+/* Quote */
+.quote{
+  margin:16px 0 22px;
+  padding:18px 20px;
+  font-family:var(--font-serif);
+  font-style:italic;
+  font-size:.95rem;color:var(--text-primary);
+  line-height:1.6;
+}
+
+/* Section Label */
+.section-label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.78rem;font-weight:600;color:var(--text-secondary);
+  letter-spacing:.08em;text-transform:uppercase;
+  margin:24px 0 12px;
+}
+
+/* Progress Card - Primary tier */
+.progress-card{
+  padding:24px;
+  display:flex;
+  align-items:center;
+  gap:22px;
+}
+.ring{position:relative;width:100px;height:100px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:rgba(255,255,255,.3);stroke-width:8}
+.ring .arc{
+  fill:none;stroke:var(--accent-green);stroke-width:8;stroke-linecap:round;
+  transition:stroke-dashoffset .5s var(--ease);
+}
+.ring .ring-text{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.ring .ring-text .num{font-size:1.3rem;font-weight:800;color:var(--text-primary)}
+.ring .ring-text .lbl{font-size:.62rem;color:var(--text-secondary);letter-spacing:.06em;text-transform:uppercase}
+.progress-info{flex:1;min-width:0}
+.progress-info .big{font-size:1.6rem;font-weight:800;color:var(--text-primary)}
+.legend{display:flex;gap:16px;margin-top:10px;font-size:.78rem;color:var(--text-secondary);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot.g{background:var(--accent-green)}
+.dot.r{background:#C4705F}
+.dot.b{background:var(--bg-lavender)}
+
+/* CTA Button - Primary tier */
+.cta{
+  width:100%;
+  padding:18px;
+  border-radius:var(--radius-control);
+  font-size:1.05rem;font-weight:700;letter-spacing:.01em;margin-top:22px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,var(--accent-violet),var(--accent-violet-light));
+  color:#fff;
+  box-shadow:var(--shadow-control);
+  transition:transform var(--duration-fast) var(--ease),box-shadow var(--duration-fast) var(--ease);
+  border:1px solid var(--glass-border);position:relative;overflow:hidden;
+}
+.cta::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 50%);
+}
+.cta:hover{transform:translateY(-1px);box-shadow:0 16px 32px rgba(103,66,245,.30)}
+.cta:active{transform:scale(.97)}
+
+/* Quick Nav - Secondary tier */
+.quick-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+.quick-item{
+  padding:16px 8px;text-align:center;display:flex;flex-direction:column;
+  align-items:center;gap:8px;font-size:.72rem;font-weight:600;color:var(--text-primary);
+  transition:transform var(--duration-fast) var(--ease);
+}
+.quick-item:hover{transform:translateY(-2px)}
+.quick-item .qi{font-size:1.4rem}
+
+/* Recent Card - Secondary tier */
+.recent-card{
+  padding:18px 20px;display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  transition:transform var(--duration-fast) var(--ease);
+}
+.recent-card:hover{transform:translateX(4px)}
+.recent-badge{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(72,185,130,.18);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;
+}
+.recent-meta{flex:1;min-width:0}
+.recent-meta .t{font-weight:700;font-size:.95rem;color:var(--text-primary)}
+.recent-meta .s{font-size:.78rem;color:var(--text-secondary);margin-top:2px}
+.chev{color:var(--text-secondary);font-size:1.15rem;flex-shrink:0}
+
+/* Featured Card - Primary tier with gradient */
+.featured{
+  overflow:hidden;
+  margin-bottom:20px;
+  position:relative;
+  padding:24px;display:flex;align-items:center;gap:18px;
+  background:linear-gradient(135deg,rgba(243,166,201,.25),rgba(169,168,195,.25),rgba(93,226,225,.25));
+}
+.featured .thumb{
+  width:68px;height:68px;border-radius:16px;
+  background:rgba(255,255,255,.35);
+  display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;
+}
+.featured .ft{flex:1;min-width:0}
+.featured .ft .n{font-weight:800;font-size:1.1rem;color:var(--text-primary)}
+.featured .ft .d{font-size:.8rem;color:var(--text-secondary);margin-top:4px}
+.featured .go{font-size:1.4rem;color:var(--text-primary);opacity:.6;flex-shrink:0}
+
+/* Deck Row - Secondary tier */
+.deck-row{
+  padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px;
+  transition:transform var(--duration-fast) var(--ease);width:100%;text-align:left;
+}
+.deck-row:hover{transform:translateX(4px)}
+.deck-row .dnum{
+  width:42px;height:42px;border-radius:12px;
+  background:rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:var(--accent-violet);font-size:.88rem;flex-shrink:0;
+  font-family:var(--font-serif);
+}
+.deck-row .dinfo{flex:1;min-width:0}
+.deck-row .dinfo .n{font-weight:700;font-size:.95rem;color:var(--text-primary)}
+.deck-row .dinfo .c{font-size:.75rem;color:var(--text-secondary);margin-top:2px}
+.mini-ring{width:36px;height:36px;flex-shrink:0}
+.mini-ring svg{transform:rotate(-90deg)}
+.mini-ring .track{fill:none;stroke:rgba(255,255,255,.3);stroke-width:4}
+.mini-ring .arc{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .4s var(--ease)}
+
+/* Study Head - Primary tier */
+.study-head{
+  margin:0 -16px 22px;padding:18px 22px 24px;
+  background:var(--glass-white);
+  border-bottom:1px solid var(--glass-border);
+  backdrop-filter:blur(var(--blur-primary)) saturate(1.35);
+  -webkit-backdrop-filter:blur(var(--blur-primary)) saturate(1.35);
+}
+.study-head .row{display:flex;align-items:center;justify-content:space-between}
+.study-head .t{font-weight:700;font-size:.98rem;color:var(--text-primary)}
+.study-head .c{font-size:.78rem;color:var(--text-secondary);margin-top:2px}
+.study-bar{height:4px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:16px;overflow:hidden}
+.study-bar .f{height:100%;background:var(--accent-violet);border-radius:2px;transition:width .3s var(--ease)}
+
+/* Flash Card - Primary tier (strong) */
+.flash-card{
+  padding:36px 24px 30px;text-align:center;
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  min-height:300px;animation:cardIn .4s var(--ease);
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+.flash-card .star{
+  position:absolute;top:18px;right:20px;font-size:1.2rem;color:var(--text-secondary);
+  transition:color var(--duration-fast),transform var(--duration-fast) var(--ease);
+  width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+}
+.flash-card .star.on{color:var(--accent-pink);transform:scale(1.15)}
+.flash-card .kanji{
+  font-size:2.8rem;font-weight:800;color:var(--text-primary);line-height:1.3;
+  word-break:break-word;animation:kanjiIn .45s var(--ease);
+}
+@keyframes kanjiIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.flash-card .reading{font-size:1.15rem;color:var(--text-secondary);min-height:1.6em}
+.flash-card .hint{font-size:.78rem;color:var(--text-secondary);margin-top:4px}
+.flash-card .arti{
+  font-size:1.08rem;color:var(--accent-green);font-weight:600;margin-top:10px;
+  padding:12px 20px;background:rgba(72,185,130,.15);border-radius:14px;display:none;
+}
+.flash-card .arti.show{display:block;animation:fadeIn .3s var(--ease)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.answer-row{display:flex;gap:12px;width:100%;margin-top:20px}
+.answer-row input{
+  flex:1;padding:16px 18px;border-radius:14px;border:1px solid var(--glass-border);
+  font-size:1.15rem;text-align:center;background:rgba(255,255,255,.15);outline:none;
+  color:var(--text-primary);min-width:0;
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+  transition:border-color var(--duration-fast) var(--ease),box-shadow var(--duration-fast) var(--ease);
+}
+.answer-row input::placeholder{color:var(--text-secondary);opacity:.55}
+.answer-row input:focus{border-color:var(--accent-violet);box-shadow:0 0 0 3px rgba(103,66,245,.15)}
+.answer-row input.ok{border-color:var(--accent-green);background:rgba(72,185,130,.15);color:var(--accent-green)}
+.answer-row input.no{border-color:#C4705F;background:rgba(196,112,95,.12);color:#C4705F}
+.answer-row button{
+  padding:16px 24px;border-radius:16px;
+  background:linear-gradient(135deg,var(--accent-violet),var(--accent-violet-light));
+  color:#fff;font-weight:700;font-size:.98rem;flex-shrink:0;
+  border:1px solid var(--glass-border);box-shadow:var(--shadow-control);
+  transition:transform var(--duration-fast) var(--ease);
+}
+.answer-row button:active{transform:scale(.95)}
+.answer-row button:disabled{opacity:.45;cursor:not-allowed}
+
+.feedback{
+  margin-top:14px;
+  padding:12px 18px;
+  border-radius:14px;font-size:.9rem;font-weight:600;
+  display:none;text-align:center;
+}
+.feedback.show{display:block;animation:popIn .35s var(--ease)}
+@keyframes popIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}
+.feedback.ok{background:rgba(72,185,130,.15);color:var(--accent-green)}
+.feedback.no{background:rgba(196,112,95,.12);color:#C4705F}
+
+.study-nav{display:flex;gap:12px;margin-top:18px}
+.study-nav button{
+  flex:1;padding:14px;border-radius:var(--radius-control);font-weight:700;font-size:.92rem;
+  border:1px solid var(--glass-border);color:var(--text-primary);
+  background:var(--glass-white);transition:all var(--duration-fast) var(--ease);
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+}
+.study-nav button:hover{background:var(--glass-strong)}
+.study-nav button:active{transform:scale(.96)}
+
+/* Stats Grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.stat-card{
+  padding:20px;display:flex;flex-direction:column;gap:10px;
+}
+.stat-card .ic{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+}
+.stat-card .ic.b{background:rgba(103,66,245,.14)}
+.stat-card .ic.g{background:rgba(72,185,130,.15)}
+.stat-card .ic.r{background:rgba(196,112,95,.12)}
+.stat-card .ic.y{background:rgba(243,166,201,.18)}
+.stat-card .v{font-size:1.5rem;font-weight:800;color:var(--text-primary)}
+.stat-card .l{font-size:.72rem;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase}
+.chart-card{padding:22px;margin-top:20px}
+.chart-card .ct{font-weight:700;font-size:.92rem;margin-bottom:18px;color:var(--text-primary)}
+.bars{display:flex;align-items:flex-end;gap:12px;height:120px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.bar{
+  width:100%;max-width:36px;border-radius:6px 6px 3px 3px;
+  background:rgba(255,255,255,.3);transition:height .4s var(--ease);min-height:4px;
+}
+.bar.has{background:var(--accent-violet)}
+.bar-lab{font-size:.62rem;color:var(--text-secondary);white-space:nowrap}
+.range-pill{
+  padding:7px 16px;border-radius:var(--radius-control);
+  border:1px solid var(--glass-border);font-size:.78rem;font-weight:600;
+  color:var(--accent-violet);background:var(--glass-white);
+}
+
+/* Settings */
+.group-label{
+  font-size:.75rem;font-weight:700;color:var(--text-secondary);
+  letter-spacing:.08em;text-transform:uppercase;margin:26px 0 10px;
+}
+.set-group{overflow:hidden}
+.set-row{
+  display:flex;align-items:center;gap:16px;padding:16px 20px;width:100%;text-align:left;
+  border-bottom:1px solid rgba(255,255,255,.2);transition:background var(--duration-fast);
+}
+.set-row:last-child{border-bottom:none}
+.set-row:hover{background:rgba(255,255,255,.08)}
+.set-row .si{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0}
+.set-row .sl{flex:1;min-width:0}
+.set-row .sl .n{font-size:.92rem;font-weight:600;color:var(--text-primary)}
+.set-row .sl .v{font-size:.78rem;color:var(--text-secondary);margin-top:2px}
+.set-row .sv{font-size:.82rem;color:var(--accent-violet);font-weight:600;flex-shrink:0}
+
+.empty-note{
+  text-align:center;color:var(--text-secondary);font-size:.88rem;
+  padding:32px 20px;line-height:1.6;
+}
+.footer-note{
+  text-align:center;color:var(--text-secondary);font-size:.72rem;
+  padding:28px 0 4px;line-height:1.7;
+}
+.footer-note .fname{
+  font-family:var(--font-serif);font-size:1.05rem;
+  color:var(--text-primary);letter-spacing:.03em;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:768px){
+  #app{max-width:100%}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+   :root{--space-page:16px}
+   .flash-card .kanji{font-size:2.2rem}
+   .greeting h2{font-size:1.55rem}
+   .progress-card{flex-direction:column;text-align:center}
+   .legend{justify-content:center}
+   .answer-row{flex-direction:column}
+   .answer-row button{width:100%}
+   .quick-nav{gap:8px}
+   .stat-grid{grid-template-columns:1fr}
+ }
+
+/* ============================================================
+   SPLASH / AUDIO GATE
+   ============================================================ */
+body.locked{overflow:hidden;height:100vh;height:100svh}
+.splash-overlay{
+  position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,rgba(232,212,209,.6),rgba(169,168,195,.6),rgba(93,226,220,.5));
+  backdrop-filter:blur(40px) saturate(1.4);-webkit-backdrop-filter:blur(40px) saturate(1.4);
+  padding:24px;
+}
+.splash-content{
+  max-width:380px;width:100%;padding:44px 32px 36px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  animation:cardIn .6s var(--ease);
+}
+.splash-logo{font-size:3rem;margin-bottom:4px}
+.splash-title{font-family:var(--font-serif);font-size:2.4rem;font-weight:700;color:var(--text-primary);letter-spacing:.02em;line-height:1.1}
+.splash-sub{font-size:.82rem;color:var(--text-secondary);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+.splash-divider{width:56px;height:1px;background:var(--glass-border);margin:18px 0}
+.splash-tag{font-size:.78rem;color:var(--accent-violet);letter-spacing:.12em;margin-bottom:14px}
+.splash-desc{font-size:.92rem;color:var(--text-secondary);line-height:1.6;margin-bottom:26px}
+.splash-cta{
+  width:100%;padding:16px;border-radius:var(--radius-control);
+  background:linear-gradient(135deg,var(--accent-violet),var(--accent-violet-light));
+  color:#fff;font-size:1rem;font-weight:700;letter-spacing:.01em;
+  border:1px solid var(--glass-border);box-shadow:var(--shadow-control);
+  transition:transform var(--duration-fast) var(--ease),box-shadow var(--duration-fast) var(--ease);
+  position:relative;overflow:hidden;
+}
+.splash-cta::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 50%)}
+.splash-cta:hover{transform:translateY(-1px)}
+.splash-cta:active{transform:scale(.97)}
+.splash-play{
+  width:100%;padding:14px;border-radius:var(--radius-control);
+  background:linear-gradient(135deg,var(--accent-teal),var(--accent-cyan));
+  color:#fff;font-size:.95rem;font-weight:700;letter-spacing:.01em;
+  border:1px solid var(--glass-border);box-shadow:0 12px 26px rgba(13,148,136,.20);
+  transition:transform var(--duration-fast) var(--ease),box-shadow var(--duration-fast) var(--ease);
+  position:relative;overflow:hidden;margin-top:10px;
+}
+.splash-play::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 50%)}
+.splash-play:hover{transform:translateY(-1px)}
+.splash-play:active{transform:scale(.97)}
+.splash-note{margin-top:16px;font-size:.75rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px}
+.spotify-player{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:900;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(37,35,44,.55);
+  backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
+  border-top:1px solid var(--glass-border);
+  animation:slideUp .4s var(--ease);
+}
+.player-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--glass-white);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-control);
+  padding:10px 16px;
+  backdrop-filter:blur(var(--blur-floating));
+  -webkit-backdrop-filter:blur(var(--blur-floating));
+}
+.player-icon{font-size:1.1rem;flex-shrink:0}
+.player-label{flex:1;font-size:.85rem;font-weight:600;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player-toggle{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--accent-violet);color:#fff;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform var(--duration-fast) var(--ease);
+}
+.player-toggle:active{transform:scale(.9)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.player-toggle{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--accent-violet);color:#fff;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform var(--duration-fast) var(--ease);
+}
+.player-toggle:active{transform:scale(.9)}
+@media(max-width:480px){
+  .splash-content{padding:36px 22px 30px}
+  .splash-title{font-size:2rem}
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  .ambient .light{animation:none !important;transition:none !important}
+}
+
+/* ============================================================
+   FALLBACK: no backdrop-filter
+   ============================================================ */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
+  .glass-primary,
+  .glass-secondary,
+  .input-wrap,.chip,.segmented,.quick-item,.study-nav button{
+    background:rgba(255,255,255,.88);
+  }
+  .ambient{display:none}
+}
+
+/* ============================================================
+   VIDEO BACKGROUND
+   ============================================================ */
+.video-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  overflow:hidden;
+}
+.video-bg video{
+  width:100%;height:100%;object-fit:cover;
+  filter:brightness(.85) saturate(1.1);
+}
+.video-bg .fade-overlay{
+  position:absolute;inset:0;
+  background:#fff;opacity:1;
+  transition:opacity 1.2s var(--ease);
+  pointer-events:none;
+}
+.video-bg .fade-overlay.hidden{opacity:0}
+</style>
+</head>
+<body>
+
+<!-- Video Background -->
+<div class="video-bg" id="videoBg" aria-hidden="true">
+  <video id="bgVideo" loop muted playsinline preload="auto">
+    <source src="bg-video.mp4" type="video/mp4">
+  </video>
+  <div class="fade-overlay" id="fadeOverlay"></div>
+</div>
+
+<!-- App -->
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   LIQUID GLASS UI — Application (Japanese Vocabulary Flashcards)
+   ============================================================ */
+
+// ---------- State ----------
+const DECK_SIZE = 24;
+let cards = [];
+let decks = [];
+let state = loadState();
+let view = 'home';
+let study = { 
+  deckIdx:0, 
+  order:[], 
+  pos:0, 
+  answered:false, 
+  correct:0, 
+  wrong:0, 
+  favs:new Set(state.favs||[]) 
+};
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem('lg_state'));
+    if(s && typeof s==='object') return Object.assign({
+      days:{},
+      decks:{},
+      favs:[],
+      settings:{
+        showReading:false,
+        fs:'M',
+        font:'gothic'
+      }
+    }, s);
+  }catch(e){}
+  return {
+    days:{},
+    decks:{},
+    favs:[],
+    settings:{
+      showReading:false,
+      fs:'M',
+      font:'gothic'
+    }
+  };
+}
+
+function saveState(){
+  state.favs = [...study.favs];
+  localStorage.setItem('lg_state', JSON.stringify(state));
+}
+
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function bumpDay(correct){
+  const k=todayKey();
+  const d=state.days[k]||{studied:0,correct:0,wrong:0};
+  d.studied++; if(correct)d.correct++; else d.wrong++;
+  state.days[k]=d;
+}
+
+function bumpDeck(i,correct){
+  const d=state.decks[i]||{seen:0,correct:0};
+  d.seen++; if(correct)d.correct++;
+  state.decks[i]=d;
+}
+
+function esc(s){
+  const d=document.createElement('div');
+  d.textContent=s;
+  return d.innerHTML;
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// ---------- Ambient Lighting Animation ----------
+let ambientFrameId = null;
+let ambientStartTime = null;
+
+function initAmbient(){
+  const lights=document.querySelectorAll('.ambient .light');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced)return;
+  
+  const positions=[
+    {x:5,y:8},    // warm light starting position
+    {x:55,y:30},  // violet light starting position  
+    {x:50,y:85}   // cyan light starting position
+  ];
+  
+  function animate(timestamp){
+    if(!ambientStartTime) ambientStartTime = timestamp;
+    const time = (timestamp - ambientStartTime) / 1000;
+    
+    lights.forEach((el,i)=>{
+      const p=positions[i];
+      // Smooth, continuous movement with gentle sine/cosine waves
+      const ox = Math.sin(time * 0.3 + i * 2.1) * 2.5;
+      const oy = Math.cos(time * 0.4 + i * 1.7) * 1.5;
+      el.style.transform = `translate(${p.x + ox}vw, ${p.y + oy}vh)`;
+    });
+    
+    ambientFrameId = requestAnimationFrame(animate);
+  }
+  
+  animate(performance.now());
+}
+
+// ---------- Embedded Card Data ----------
+const EMBEDDED_CARDS = {"deck_name":"Nothxy - Kosakata Jepang","cards":[{"kanji":"学生","hiragana":"がくせい","arti":"pelajar/mahasiswa"},{"kanji":"学校","hiragana":"がっこう","arti":"sekolah"},{"kanji":"去年","hiragana":"きょねん","arti":"tahun lalu"},{"kanji":"生活","hiragana":"せいかつ","arti":"kehidupan"},{"kanji":"先週","hiragana":"せんしゅ","arti":"minggu lalu"},{"kanji":"仕事","hiragana":"しごと","arti":"pekerjaan"},{"kanji":"元気","hiragana":"げんき","arti":"sehat/semangat"},{"kanji":"忙しい","hiragana":"いそがし","arti":"sibuk"},{"kanji":"働く","hiragana":"はたらく","arti":"bekerja"},{"kanji":"作る","hiragana":"つくる","arti":"membuat"},{"kanji":"人","hiragana":"ひと","arti":"orang"},{"kanji":"市","hiragana":"し","arti":"kota"},{"kanji":"犬","hiragana":"いぬ","arti":"anjing"},{"kanji":"家","hiragana":"いえ","arti":"rumah"},{"kanji":"族","hiragana":"ぞく","arti":"suku bangsa"},{"kanji":"家族","hiragana":"かぞく","arti":"keluarga"},{"kanji":"娘","hiragana":"むすめ","arti":"anak perempuan"},{"kanji":"夕方","hiragana":"ゆうがた","arti":"sore menjelang malam"},{"kanji":"英語","hiragana":"えいご","arti":"bahasa Inggris"},{"kanji":"中国語","hiragana":"ちゅうごくご","arti":"bahasa Tiongkok/Mandarin"},{"kanji":"音楽","hiragana":"おんがく","arti":"musik"},{"kanji":"本当に","hiragana":"ほんとうに","arti":"sungguh/benar-benar"},{"kanji":"習う","hiragana":"ならう","arti":"belajar (dari guru)"},{"kanji":"話す","hiragana":"はなす","arti":"berbicara"},{"kanji":"出かける","hiragana":"でかける","arti":"pergi keluar"},{"kanji":"季節","hiragana":"きせつ","arti":"musim"},{"kanji":"四季","hiragana":"しき","arti":"empat musim"},{"kanji":"雨季","hiragana":"うき","arti":"musim hujan"},{"kanji":"乾季","hiragana":"かんき","arti":"musim kemarau"},{"kanji":"梅雨","hiragana":"つゆ","arti":"musim hujan awal panas"},{"kanji":"春","hiragana":"はる","arti":"musim semi"},{"kanji":"夏","hiragana":"なつ","arti":"musim panas"},{"kanji":"秋","hiragana":"あき","arti":"musim gugur"},{"kanji":"冬","hiragana":"ふゆ","arti":"musim dingin"},{"kanji":"花","hiragana":"はな","arti":"bunga"},{"kanji":"同じ","hiragana":"おなじ","arti":"sama"},{"kanji":"～度","hiragana":"～ど","arti":"…derajat (suhu)"},{"kanji":"暑い","hiragana":"あつい","arti":"panas (udara)"},{"kanji":"寒い","hiragana":"さむい","arti":"dingin (udara)"},{"kanji":"梨","hiragana":"なし","arti":"buah pir"},{"kanji":"天気","hiragana":"てんき","arti":"cuaca"},{"kanji":"晴れ","hiragana":"はれ","arti":"cerah"},{"kanji":"雨","hiragana":"あめ","arti":"hujan"},{"kanji":"雪","hiragana":"ゆき","arti":"salju"},{"kanji":"風","hiragana":"かぜ","arti":"angin"},{"kanji":"今","hiragana":"いま","arti":"sekarang"},{"kanji":"昨日","hiragana":"きのう","arti":"kemarin"},{"kanji":"明日","hiragana":"あした","arti":"besok"},{"kanji":"毎日","hiragana":"まいにち","arti":"setiap hari"},{"kanji":"強い","hiragana":"つよい","arti":"kuat"},{"kanji":"町","hiragana":"まち","arti":"kota kecil"},{"kanji":"店","hiragana":"みせ","arti":"toko"},{"kanji":"丘","hiragana":"おか","arti":"bukit"},{"kanji":"食堂","hiragana":"しょくどう","arti":"kantin/ruang makan"},{"kanji":"確かに","hiragana":"たしかに","arti":"memang/benar"},{"kanji":"親切","hiragana":"しんせつ","arti":"baik hati"},{"kanji":"冷たい","hiragana":"つめたい","arti":"dingin (benda)"},{"kanji":"田舎","hiragana":"いなか","arti":"pedesaan"},{"kanji":"都会","hiragana":"とかい","arti":"perkotaan"},{"kanji":"便利","hiragana":"べんり","arti":"praktis/nyaman"},{"kanji":"不便","hiragana":"ふべん","arti":"tidak praktis"},{"kanji":"静か","hiragana":"しずか","arti":"tenang"},{"kanji":"緑","hiragana":"みどり","arti":"hijau"},{"kanji":"有名","hiragana":"ゆうめい","arti":"terkenal"},{"kanji":"多い","hiragana":"おおい","arti":"banyak"},{"kanji":"少ない","hiragana":"すくない","arti":"sedikit"},{"kanji":"遠い","hiragana":"とおい","arti":"jauh"},{"kanji":"建物","hiragana":"たてもの","arti":"bangunan"},{"kanji":"休憩場","hiragana":"きゅけいじょう","arti":"tempat istirahat"},{"kanji":"人気","hiragana":"にんき","arti":"populer"},{"kanji":"右","hiragana":"みぎ","arti":"kanan"},{"kanji":"左","hiragana":"ひだり","arti":"kiri"},{"kanji":"近く","hiragana":"ちかく","arti":"dekat"},{"kanji":"車","hiragana":"くるま","arti":"mobil"},{"kanji":"送る","hiragana":"おくる","arti":"mengirim/mengantar"},{"kanji":"道","hiragana":"みち","arti":"jalan"},{"kanji":"公園","hiragana":"こうえん","arti":"taman"},{"kanji":"お寺","hiragana":"おてら","arti":"kuil Buddha"},{"kanji":"銀行","hiragana":"ぎんこう","arti":"bank"},{"kanji":"神社","hiragana":"じんじゃ","arti":"kuil Shinto"},{"kanji":"時間","hiragana":"じかん","arti":"waktu"},{"kanji":"平和","hiragana":"へいわ","arti":"damai"},{"kanji":"場所","hiragana":"ばしょ","arti":"tempat"},{"kanji":"駅","hiragana":"えき","arti":"stasiun"},{"kanji":"像","hiragana":"ぞう","arti":"patung"},{"kanji":"受付","hiragana":"うけつけ","arti":"resepsionis"},{"kanji":"門","hiragana":"もん","arti":"gerbang"},{"kanji":"電車","hiragana":"でんしゃ","arti":"kereta listrik"},{"kanji":"事故","hiragana":"じこ","arti":"kecelakaan"},{"kanji":"待つ","hiragana":"まつ","arti":"menunggu"},{"kanji":"止まる","hiragana":"とまる","arti":"berhenti"},{"kanji":"集合","hiragana":"しゅうごう","arti":"berkumpul"},{"kanji":"着く","hiragana":"つく","arti":"tiba"},{"kanji":"急ぐ","hiragana":"いそぐ","arti":"bergegas"},{"kanji":"大丈夫","hiragana":"だいじょうぶ","arti":"tidak apa-apa/aman"},{"kanji":"お金","hiragana":"おかね","arti":"uang"},{"kanji":"食事","hiragana":"しょくじ","arti":"makan/bersantap"},{"kanji":"野球","hiragana":"やきゅう","arti":"bisbol"},{"kanji":"現代","hiragana":"げんだい","arti":"zaman modern"},{"kanji":"作品","hiragana":"さくひん","arti":"karya"},{"kanji":"～店","hiragana":"てん","arti":"…toko"},{"kanji":"お城","hiragana":"おしろ","arti":"istana"},{"kanji":"博物館","hiragana":"はくぶつかん","arti":"museum"},{"kanji":"動物園","hiragana":"どうぶつえん","arti":"kebun binatang"},{"kanji":"市民体育館","hiragana":"しみんたいいくかん","arti":"gedung olahraga warga"},{"kanji":"映画館","hiragana":"えいがかん","arti":"bioskop"},{"kanji":"展覧会","hiragana":"てんらんかい","arti":"pameran"},{"kanji":"試合","hiragana":"しあい","arti":"pertandingan"},{"kanji":"楽しい","hiragana":"たのしい","arti":"menyenangkan"},{"kanji":"難しい","hiragana":"むずかし","arti":"sulit"},{"kanji":"感動する","hiragana":"かんどうする","arti":"terharu/terkesan"},{"kanji":"無理","hiragana":"むり","arti":"tidak mungkin"},{"kanji":"登る","hiragana":"のぼる","arti":"mendaki"},{"kanji":"高校","hiragana":"こうこう","arti":"SMA"},{"kanji":"大学","hiragana":"だいがく","arti":"universitas"},{"kanji":"得意","hiragana":"とくい","arti":"unggul/ahli"},{"kanji":"練習","hiragana":"れんしゅう","arti":"latihan"},{"kanji":"簡単","hiragana":"かんたん","arti":"mudah"},{"kanji":"勉強","hiragana":"べんきょう","arti":"belajar"},{"kanji":"覚える","hiragana":"おぼえる","arti":"mengingat/menghafal"},{"kanji":"探す","hiragana":"さがす","arti":"mencari"},{"kanji":"辞書","hiragana":"じしょ","arti":"kamus"},{"kanji":"漢字","hiragana":"かんじ","arti":"kanji"},{"kanji":"文法","hiragana":"ぶんぽう","arti":"tata bahasa"},{"kanji":"発音","hiragana":"はつおん","arti":"pelafalan"},{"kanji":"文字","hiragana":"もじ","arti":"huruf/aksara"},{"kanji":"無料","hiragana":"むりょう","arti":"gratis"},{"kanji":"言う","hiragana":"いう","arti":"berkata"},{"kanji":"書く","hiragana":"かく","arti":"menulis"},{"kanji":"貸す","hiragana":"かす","arti":"meminjamkan"},{"kanji":"教える","hiragana":"おしえる","arti":"mengajar/memberitahu"},{"kanji":"説明する","hiragana":"せつめいする","arti":"menjelaskan"},{"kanji":"午前","hiragana":"ごぜん","arti":"pagi (AM)"},{"kanji":"午後","hiragana":"ごご","arti":"siang/sore (PM)"},{"kanji":"教科書","hiragana":"きょうかしょ","arti":"buku pelajaran"},{"kanji":"教室","hiragana":"きょうしつ","arti":"ruang kelas"},{"kanji":"先生","hiragana":"せんせい","arti":"guru"},{"kanji":"全部","hiragana":"ぜんぶ","arti":"semuanya"},{"kanji":"～回","hiragana":"かい","arti":"…kali (penghitung)"},{"kanji":"参加する","hiragana":"さんかする","arti":"ikut serta"},{"kanji":"用意する","hiragana":"よういする","arti":"menyiapkan"},{"kanji":"飲み物","hiragana":"のみもの","arti":"minuman"},{"kanji":"果物","hiragana":"くだもの","arti":"buah"},{"kanji":"お菓子","hiragana":"おかし","arti":"kue/camilan"},{"kanji":"お茶","hiragana":"おちゃ","arti":"teh"},{"kanji":"お酒","hiragana":"おさけ","arti":"minuman beralkohol"},{"kanji":"材料","hiragana":"ざいりょ","arti":"bahan"},{"kanji":"野菜","hiragana":"やさい","arti":"sayur"},{"kanji":"牛肉","hiragana":"ぎゅうにく","arti":"daging sapi"},{"kanji":"豚肉","hiragana":"ぶたにく","arti":"daging babi"},{"kanji":"鶏肉","hiragana":"とりにく","arti":"daging ayam"},{"kanji":"焼肉","hiragana":"やきにく","arti":"daging bakar (yakiniku)"},{"kanji":"小麦","hiragana":"こむぎ","arti":"gandum"},{"kanji":"乳製品","hiragana":"にゅせいひん","arti":"produk susu"},{"kanji":"乳成分","hiragana":"にゅうせいぶん","arti":"kandungan susu"},{"kanji":"玉葱","hiragana":"たまねぎ","arti":"bawang bombai"},{"kanji":"大豆","hiragana":"だいず","arti":"kedelai"},{"kanji":"皿","hiragana":"さら","arti":"piring"},{"kanji":"売る","hiragana":"うる","arti":"menjual"},{"kanji":"持って行く","hiragana":"もっていく","arti":"membawa (pergi)"},{"kanji":"卵","hiragana":"たまご","arti":"telur"},{"kanji":"料理","hiragana":"りょうり","arti":"masakan"},{"kanji":"お湯","hiragana":"おゆ","arti":"air panas"},{"kanji":"調理方法","hiragana":"ちょうりほうほう","arti":"cara memasak"},{"kanji":"少し","hiragana":"すこし","arti":"sedikit"},{"kanji":"甘い","hiragana":"あまい","arti":"manis"},{"kanji":"辛い","hiragana":"からい","arti":"pedas"},{"kanji":"苦手","hiragana":"にがて","arti":"tidak suka/tidak mahir"},{"kanji":"コピー機","hiragana":"コピーき","arti":"mesin fotokopi"},{"kanji":"数字","hiragana":"すうじ","arti":"angka"},{"kanji":"電気","hiragana":"でんき","arti":"listrik/lampu"},{"kanji":"音","hiragana":"おと","arti":"bunyi"},{"kanji":"机","hiragana":"つくえ","arti":"meja"},{"kanji":"都合","hiragana":"つごう","arti":"keadaan/kelonggaran waktu"},{"kanji":"悪い","hiragana":"わるい","arti":"buruk"},{"kanji":"動く","hiragana":"うごく","arti":"bergerak"},{"kanji":"使う","hiragana":"つかう","arti":"menggunakan"},{"kanji":"終わる","hiragana":"おわる","arti":"selesai"},{"kanji":"お願いします","hiragana":"おねがいします","arti":"tolong/mohon"},{"kanji":"用事","hiragana":"ようじ","arti":"urusan"},{"kanji":"氏名","hiragana":"しめい","arti":"nama lengkap"},{"kanji":"理由","hiragana":"りゆう","arti":"alasan"},{"kanji":"連絡先","hiragana":"れんらくさき","arti":"kontak"},{"kanji":"別に","hiragana":"べつに","arti":"tidak juga"},{"kanji":"早く","hiragana":"はやく","arti":"cepat"},{"kanji":"吸う","hiragana":"すう","arti":"menghisap"},{"kanji":"取る","hiragana":"とる","arti":"mengambil"},{"kanji":"帰る","hiragana":"かえる","arti":"pulang"},{"kanji":"伝える","hiragana":"つたえる","arti":"menyampaikan"},{"kanji":"熱","hiragana":"ねつ","arti":"demam/panas"},{"kanji":"薬","hiragana":"くすり","arti":"obat"},{"kanji":"病気","hiragana":"びょうき","arti":"penyakit"},{"kanji":"病院","hiragana":"びょういん","arti":"rumah sakit"},{"kanji":"医者","hiragana":"いしゃ","arti":"dokter"},{"kanji":"住所","hiragana":"じゅうしょ","arti":"alamat"},{"kanji":"～才","hiragana":"～さい","arti":"…tahun (umur)"},{"kanji":"痛い","hiragana":"いたい","arti":"sakit/nyeri"},{"kanji":"眠い","hiragana":"ねむい","arti":"mengantuk"},{"kanji":"寝る","hiragana":"ねる","arti":"tidur"},{"kanji":"記入する","hiragana":"きにゅうする","arti":"mengisi (formulir)"},{"kanji":"体","hiragana":"からだ","arti":"tubuh"},{"kanji":"顔","hiragana":"かお","arti":"wajah"},{"kanji":"目","hiragana":"め","arti":"mata"},{"kanji":"耳","hiragana":"みみ","arti":"telinga"},{"kanji":"口","hiragana":"くち","arti":"mulut"},{"kanji":"頭","hiragana":"あたま","arti":"kepala"},{"kanji":"足","hiragana":"あし","arti":"kaki"},{"kanji":"手","hiragana":"て","arti":"tangan"},{"kanji":"起きる","hiragana":"おきる","arti":"bangun"},{"kanji":"歩く","hiragana":"あるく","arti":"berjalan"},{"kanji":"走る","hiragana":"はしる","arti":"berlari"},{"kanji":"運動する","hiragana":"うんどうする","arti":"berolahraga"},{"kanji":"お父さん","hiragana":"おとうさん","arti":"ayah"},{"kanji":"お母さん","hiragana":"おかあさん","arti":"ibu"},{"kanji":"兄","hiragana":"あに","arti":"kakak laki-laki"},{"kanji":"お兄さん","hiragana":"おにさん","arti":"kakak laki-laki (sopan)"},{"kanji":"姉","hiragana":"あね","arti":"kakak perempuan"},{"kanji":"お姉さん","hiragana":"おねえさん","arti":"kakak perempuan (sopan)"},{"kanji":"弟","hiragana":"おとうと","arti":"adik laki-laki"},{"kanji":"妹","hiragana":"いもうと","arti":"adik perempuan"},{"kanji":"夫","hiragana":"おっと","arti":"suami"},{"kanji":"妻","hiragana":"つま","arti":"istri"},{"kanji":"両親","hiragana":"りょうしん","arti":"kedua orang tua"},{"kanji":"男の子","hiragana":"おとこのこ","arti":"anak laki-laki"},{"kanji":"女の子","hiragana":"おんなのこ","arti":"anak perempuan"},{"kanji":"お祝い","hiragana":"おいわい","arti":"perayaan/ucapan selamat"},{"kanji":"誕生日","hiragana":"たんじょうび","arti":"hari ulang tahun"},{"kanji":"結婚","hiragana":"けっこん","arti":"pernikahan"},{"kanji":"時計","hiragana":"とけい","arti":"jam"},{"kanji":"幸せ","hiragana":"しあわせ","arti":"bahagia"},{"kanji":"生まれる","hiragana":"うまれる","arti":"lahir"},{"kanji":"思う","hiragana":"おもう","arti":"berpikir/merasa"},{"kanji":"選ぶ","hiragana":"えらぶ","arti":"memilih"},{"kanji":"合格する","hiragana":"ごうかくする","arti":"lulus (ujian)"},{"kanji":"山","hiragana":"やま","arti":"gunung"},{"kanji":"川","hiragana":"かわ","arti":"sungai"},{"kanji":"海","hiragana":"うみ","arti":"laut"},{"kanji":"島","hiragana":"しま","arti":"pulau"},{"kanji":"森","hiragana":"もり","arti":"hutan"},{"kanji":"客","hiragana":"きゃく","arti":"tamu/pelanggan"},{"kanji":"観光地","hiragana":"かんこうち","arti":"tempat wisata"},{"kanji":"意味","hiragana":"いみ","arti":"arti/makna"},{"kanji":"経験","hiragana":"けいけん","arti":"pengalaman"},{"kanji":"自己紹介","hiragana":"じこしょうかい","arti":"perkenalan diri"},{"kanji":"猫","hiragana":"ねこ","arti":"kucing"},{"kanji":"一生懸命","hiragana":"いっしょうけんめい","arti":"dengan sekuat tenaga"},{"kanji":"担当","hiragana":"たんとう","arti":"penanggung jawab"},{"kanji":"写真","hiragana":"しゃしん","arti":"foto"},{"kanji":"歌","hiragana":"うた","arti":"lagu"},{"kanji":"歌手","hiragana":"かしゅ","arti":"penyanyi"},{"kanji":"上手","hiragana":"じょうず","arti":"mahir/pandai"},{"kanji":"明るい","hiragana":"あかるい","arti":"terang/ceria"},{"kanji":"長い","hiragana":"ながい","arti":"panjang"},{"kanji":"短い","hiragana":"みじかい","arti":"pendek"},{"kanji":"着る","hiragana":"きる","arti":"memakai (baju)"},{"kanji":"立つ","hiragana":"たつ","arti":"berdiri"},{"kanji":"泣く","hiragana":"なく","arti":"menangis"},{"kanji":"驚く","hiragana":"おどろく","arti":"terkejut"},{"kanji":"金色","hiragana":"きんいろ","arti":"warna emas"},{"kanji":"引退する","hiragana":"いんたいする","arti":"pensiun"},{"kanji":"世界中","hiragana":"せかいじゅう","arti":"seluruh dunia"},{"kanji":"映画祭","hiragana":"えいがさい","arti":"festival film"},{"kanji":"俳優","hiragana":"はいゆう","arti":"aktor"},{"kanji":"心配","hiragana":"しんぱい","arti":"khawatir"},{"kanji":"今度","hiragana":"こんど","arti":"lain kali"},{"kanji":"見た目","hiragana":"みため","arti":"penampilan"},{"kanji":"注文","hiragana":"ちゅうもん","arti":"pesanan"},{"kanji":"会計","hiragana":"かいけい","arti":"pembayaran/tagihan"},{"kanji":"予約","hiragana":"よやく","arti":"reservasi"},{"kanji":"電話番号","hiragana":"でんわばんご","arti":"nomor telepon"},{"kanji":"～様","hiragana":"～さま","arti":"…(sufiks hormat nama)"},{"kanji":"ご飯","hiragana":"ごはん","arti":"nasi/makanan"},{"kanji":"牛乳","hiragana":"ぎゅにゅう","arti":"susu sapi"},{"kanji":"生","hiragana":"なま","arti":"mentah"},{"kanji":"禁煙","hiragana":"きんえん","arti":"dilarang merokok"},{"kanji":"自由","hiragana":"じゆう","arti":"bebas"},{"kanji":"塩","hiragana":"しお","arti":"garam"},{"kanji":"油","hiragana":"あぶら","arti":"minyak"},{"kanji":"量","hiragana":"りょう","arti":"jumlah/kuantitas"},{"kanji":"～方","hiragana":"～かた","arti":"cara (melakukan)"},{"kanji":"～屋","hiragana":"～や","arti":"…toko/penjual"},{"kanji":"満足","hiragana":"まんぞく","arti":"puas"},{"kanji":"切る","hiragana":"きる","arti":"memotong"},{"kanji":"焼く","hiragana":"やく","arti":"memanggang/membakar"},{"kanji":"入れる","hiragana":"いれる","arti":"memasukkan"},{"kanji":"自然","hiragana":"しぜん","arti":"alam"},{"kanji":"交通","hiragana":"こうつう","arti":"lalu lintas/transportasi"},{"kanji":"船","hiragana":"ふね","arti":"kapal"},{"kanji":"自転車","hiragana":"じてんしゃ","arti":"sepeda"},{"kanji":"旅館","hiragana":"りょかん","arti":"penginapan tradisional"},{"kanji":"東京","hiragana":"とうきょう","arti":"Tokyo"},{"kanji":"計画","hiragana":"けいかく","arti":"rencana"},{"kanji":"遊ぶ","hiragana":"あそぶ","arti":"bermain"},{"kanji":"調べる","hiragana":"しらべる","arti":"memeriksa/mencari tahu"},{"kanji":"出発する","hiragana":"しゅっぱつする","arti":"berangkat"},{"kanji":"運転","hiragana":"うんてん","arti":"mengemudi"},{"kanji":"故障","hiragana":"こしょう","arti":"kerusakan/mogok"},{"kanji":"指定席","hiragana":"していせき","arti":"kursi reservasi"},{"kanji":"週末","hiragana":"しゅうまつ","arti":"akhir pekan"},{"kanji":"絵","hiragana":"え","arti":"gambar/lukisan"},{"kanji":"空","hiragana":"そら","arti":"langit"},{"kanji":"泳ぐ","hiragana":"およぐ","arti":"berenang"},{"kanji":"光る","hiragana":"ひかる","arti":"bersinar"},{"kanji":"到着する","hiragana":"とうちゃくする","arti":"tiba"},{"kanji":"お知らせ","hiragana":"おしらせ","arti":"pengumuman"},{"kanji":"今月","hiragana":"こんげつ","arti":"bulan ini"},{"kanji":"水道","hiragana":"すいどう","arti":"air ledeng"},{"kanji":"工事","hiragana":"こうじ","arti":"proyek konstruksi"},{"kanji":"広場","hiragana":"ひろば","arti":"lapangan/alun-alun"},{"kanji":"場合","hiragana":"ばあい","arti":"kasus/situasi"},{"kanji":"中止","hiragana":"ちゅうし","arti":"pembatalan"},{"kanji":"条件","hiragana":"じょうけん","arti":"syarat/kondisi"},{"kanji":"～以上","hiragana":"～いじょう","arti":"…lebih/di atas"},{"kanji":"開く","hiragana":"ひらく","arti":"membuka"},{"kanji":"生産する","hiragana":"せいさんする","arti":"memproduksi"},{"kanji":"来年","hiragana":"らいねん","arti":"tahun depan"},{"kanji":"会場","hiragana":"かいじょう","arti":"tempat acara"},{"kanji":"世界","hiragana":"せかい","arti":"dunia"},{"kanji":"体験","hiragana":"たいけん","arti":"pengalaman (mencoba)"},{"kanji":"国際交流","hiragana":"こくさいこうりゅう","arti":"pertukaran internasional"},{"kanji":"禁止","hiragana":"きんし","arti":"dilarang"},{"kanji":"紙","hiragana":"かみ","arti":"kertas"},{"kanji":"始まる","hiragana":"はじまる","arti":"dimulai"},{"kanji":"申し込む","hiragana":"もうしこむ","arti":"mendaftar"},{"kanji":"今年","hiragana":"ことし","arti":"tahun ini"},{"kanji":"昨年","hiragana":"さくねん","arti":"tahun lalu"},{"kanji":"毎年","hiragana":"まいとし","arti":"setiap tahun"},{"kanji":"文化","hiragana":"ぶんか","arti":"budaya"},{"kanji":"祭り","hiragana":"まつり","arti":"festival"},{"kanji":"正月","hiragana":"しょうがつ","arti":"Tahun Baru"},{"kanji":"～式","hiragana":"～しき","arti":"upacara/gaya"},{"kanji":"大人","hiragana":"おとな","arti":"orang dewasa"},{"kanji":"米","hiragana":"こめ","arti":"beras"},{"kanji":"特別","hiragana":"とくべつ","arti":"istimewa/khusus"},{"kanji":"服","hiragana":"ふく","arti":"pakaian"},{"kanji":"袋","hiragana":"ふくろ","arti":"kantong"},{"kanji":"自分","hiragana":"じぶん","arti":"diri sendiri"},{"kanji":"店長","hiragana":"てんちょう","arti":"kepala toko"},{"kanji":"全員","hiragana":"ぜんいん","arti":"semua orang"},{"kanji":"習慣","hiragana":"しゅうかん","arti":"kebiasaan"},{"kanji":"普通","hiragana":"ふつう","arti":"biasa/normal"},{"kanji":"暗い","hiragana":"くらい","arti":"gelap"},{"kanji":"怒る","hiragana":"おこる","arti":"marah"},{"kanji":"入院する","hiragana":"にゅういんする","arti":"dirawat inap"},{"kanji":"色","hiragana":"いろ","arti":"warna"},{"kanji":"赤","hiragana":"あか","arti":"merah"},{"kanji":"青","hiragana":"あお","arti":"biru"},{"kanji":"黒","hiragana":"くろ","arti":"hitam"},{"kanji":"白","hiragana":"しろ","arti":"putih"},{"kanji":"女性","hiragana":"じょせい","arti":"perempuan"},{"kanji":"男性","hiragana":"だんせい","arti":"laki-laki"},{"kanji":"急に","hiragana":"きゅうに","arti":"tiba-tiba"},{"kanji":"営業する","hiragana":"えいぎょうする","arti":"beroperasi (usaha)"},{"kanji":"案内する","hiragana":"あんないする","arti":"memandu/mengantar"},{"kanji":"商品","hiragana":"しょうひん","arti":"barang/produk"},{"kanji":"値段","hiragana":"ねだん","arti":"harga"},{"kanji":"価格","hiragana":"かかく","arti":"harga"},{"kanji":"消費税","hiragana":"しょうひぜい","arti":"pajak konsumsi"},{"kanji":"税別","hiragana":"ぜいべつ","arti":"belum termasuk pajak"},{"kanji":"店員","hiragana":"てんいん","arti":"pegawai toko"},{"kanji":"重い","hiragana":"おもい","arti":"berat"},{"kanji":"軽い","hiragana":"かるい","arti":"ringan"},{"kanji":"変わる","hiragana":"かわる","arti":"berubah"},{"kanji":"料金","hiragana":"りょうきん","arti":"tarif/biaya"},{"kanji":"施設","hiragana":"しせつ","arti":"fasilitas"},{"kanji":"図書館","hiragana":"としょかん","arti":"perpustakaan"},{"kanji":"展示する","hiragana":"てんじする","arti":"memamerkan"},{"kanji":"道具","hiragana":"どうぐ","arti":"alat"},{"kanji":"画家","hiragana":"がか","arti":"pelukis"},{"kanji":"中心","hiragana":"ちゅうしん","arti":"pusat"},{"kanji":"～点","hiragana":"～てん","arti":"…poin"},{"kanji":"～冊","hiragana":"～さつ","arti":"…(penghitung buku)"},{"kanji":"必要","hiragana":"ひつよう","arti":"perlu"},{"kanji":"歴史","hiragana":"れきし","arti":"sejarah"},{"kanji":"彫刻","hiragana":"ちょうこく","arti":"pahatan/patung ukir"},{"kanji":"借りる","hiragana":"かりる","arti":"meminjam"},{"kanji":"返す","hiragana":"かえす","arti":"mengembalikan"},{"kanji":"確認する","hiragana":"かくにんする","arti":"memastikan"},{"kanji":"開く","hiragana":"あく","arti":"terbuka"},{"kanji":"閉まる","hiragana":"しまる","arti":"tertutup"},{"kanji":"延ばす","hiragana":"のばす","arti":"memperpanjang"},{"kanji":"利用する","hiragana":"りようする","arti":"menggunakan"},{"kanji":"在留カード","hiragana":"ざいりゅうカード","arti":"kartu izin tinggal"},{"kanji":"館内","hiragana":"かんない","arti":"bagian dalam gedung"},{"kanji":"入館","hiragana":"にゅうかん","arti":"masuk gedung"},{"kanji":"外国","hiragana":"がいこく","arti":"luar negeri"},{"kanji":"情報","hiragana":"じょうほう","arti":"informasi"},{"kanji":"相談","hiragana":"そうだん","arti":"konsultasi"},{"kanji":"質問","hiragana":"しつもん","arti":"pertanyaan"},{"kanji":"窓口","hiragana":"まどぐち","arti":"loket"},{"kanji":"郵便局","hiragana":"ゆうびんきょく","arti":"kantor pos"},{"kanji":"近所","hiragana":"きんじょ","arti":"lingkungan sekitar"},{"kanji":"自動","hiragana":"じどう","arti":"otomatis"},{"kanji":"洗う","hiragana":"あらう","arti":"mencuci"},{"kanji":"入力する","hiragana":"にゅうりょくする","arti":"memasukkan (data)"},{"kanji":"温度","hiragana":"おんど","arti":"suhu"},{"kanji":"危険","hiragana":"きけん","arti":"bahaya"},{"kanji":"～種類","hiragana":"～しゅるい","arti":"…jenis"},{"kanji":"消す","hiragana":"けす","arti":"menghapus/mematikan"},{"kanji":"捨てる","hiragana":"すてる","arti":"membuang"},{"kanji":"出す","hiragana":"だす","arti":"mengeluarkan"},{"kanji":"分ける","hiragana":"わける","arti":"memisahkan"},{"kanji":"燃える","hiragana":"もえる","arti":"terbakar"},{"kanji":"決める","hiragana":"きめる","arti":"memutuskan"},{"kanji":"設定する","hiragana":"せっていする","arti":"mengatur/menyetel"},{"kanji":"地震","hiragana":"じしん","arti":"gempa bumi"},{"kanji":"台風","hiragana":"たいふう","arti":"topan"},{"kanji":"外","hiragana":"そと","arti":"luar"},{"kanji":"声","hiragana":"こえ","arti":"suara"},{"kanji":"危ない","hiragana":"あぶない","arti":"berbahaya"},{"kanji":"大切","hiragana":"たいせつ","arti":"penting/berharga"},{"kanji":"集まる","hiragana":"あつまる","arti":"berkumpul"},{"kanji":"進む","hiragana":"すすむ","arti":"maju"},{"kanji":"最近","hiragana":"さいきん","arti":"akhir-akhir ini"},{"kanji":"授業","hiragana":"じゅぎょう","arti":"pelajaran"},{"kanji":"問題","hiragana":"もんだい","arti":"masalah/soal"},{"kanji":"困る","hiragana":"こまる","arti":"kesulitan"},{"kanji":"違う","hiragana":"ちがう","arti":"berbeda"},{"kanji":"慣れる","hiragana":"なれる","arti":"terbiasa"},{"kanji":"増える","hiragana":"ふえる","arti":"bertambah"},{"kanji":"笑う","hiragana":"わらう","arti":"tertawa"},{"kanji":"苦労する","hiragana":"くろうする","arti":"bersusah payah"},{"kanji":"希望","hiragana":"きぼう","arti":"harapan"},{"kanji":"募集","hiragana":"ぼしゅう","arti":"rekrutmen/pengumpulan"},{"kanji":"特に","hiragana":"とくに","arti":"terutama"},{"kanji":"住む","hiragana":"すむ","arti":"tinggal/bermukim"},{"kanji":"建てる","hiragana":"たてる","arti":"membangun"},{"kanji":"続ける","hiragana":"つづける","arti":"melanjutkan"},{"kanji":"考える","hiragana":"かんがえる","arti":"berpikir"},{"kanji":"役に立つ","hiragana":"やくにたつ","arti":"berguna"},{"kanji":"卒業する","hiragana":"そつぎょうする","arti":"lulus"},{"kanji":"留学する","hiragana":"りゅうがくする","arti":"belajar di luar negeri"}]};
+
+// ---------- API ----------
+async function loadCards(){
+  const data = EMBEDDED_CARDS;
+  cards = data.cards;
+  decks=[];
+  for(let i=0;i<cards.length;i+=DECK_SIZE){
+    decks.push({
+      name:'Bab '+(decks.length+1),
+      cards:cards.slice(i,i+DECK_SIZE)
+    });
+  }
+}
+
+// ---------- Router ----------
+function go(v){
+  view=v;
+  render();
+  window.scrollTo(0,0);
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(view==='home')app.innerHTML=viewHome();
+  else if(view==='decks')app.innerHTML=viewDecks();
+  else if(view==='study')app.innerHTML=viewStudy();
+  else if(view==='stats')app.innerHTML=viewStats();
+  else if(view==='settings')app.innerHTML=viewSettings();
+  afterRender();
+}
+
+// ---------- Home View ----------
+function ringSVG(pct,size){
+  const r=(size-8)/2, c=2*Math.PI*r;
+  const off=c-(pct/100)*c;
+  const color=pct>=80?'var(--accent-green)':pct>=50?'#D9A441':'var(--bg-lavender)';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle class="track" cx="${size/2}" cy="${size/2}" r="${r}"/>
+    <circle class="arc" cx="${size/2}" cy="${size/2}" r="${r}" stroke="${color}"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+  </svg>`;
+}
+
+function viewHome(){
+  const h=new Date().getHours();
+  const greet=h<11?'Selamat Pagi':h<15?'Selamat Siang':h<19?'Selamat Sore':'Selamat Malam';
+  const tk=todayKey();
+  const td=state.days[tk]||{studied:0,correct:0,wrong:0};
+  const pct=cards.length?Math.round((td.studied%cards.length)/cards.length*100*10)/10:0;
+  const recentDeck=Object.keys(state.decks).sort((a,b)=>b-a)[0];
+  return `
+  <div class="topbar">
+    <button class="icon-btn glass-floating" onclick="go('settings')" aria-label="Menu">☰</button>
+    <div class="title">Nothxy<small>Kosakata Jepang</small></div>
+    <button class="icon-btn glass-floating" onclick="go('settings')" aria-label="Pengaturan">⚙</button>
+  </div>
+  <div class="greeting">
+    <div class="small">${greet},</div>
+    <h2>ようこそ 📖</h2>
+  </div>
+  <div class="quote glass-primary">「少しずつ、毎日、必ずできる」<br><span style="font-family:var(--font-sans);font-style:normal;font-size:.75rem;color:var(--text-secondary)">Sedikit demi sedikit, setiap hari, pasti bisa.</span></div>
+  <div class="section-label"><span>Progres Hari Ini</span><span>${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</span></div>
+  <div class="progress-card glass-primary">
+    <div class="ring">${ringSVG(Math.min(pct,100),100)}<div class="ring-text"><span class="num">${td.studied}</span><span class="lbl">Kartu</span></div></div>
+    <div class="progress-info">
+      <div class="big">${cards.length?Math.min(td.studied,cards.length):0} / ${cards.length}</div>
+      <div class="legend">
+        <span><i class="dot g"></i>Benar ${td.correct}</span>
+        <span><i class="dot r"></i>Salah ${td.wrong}</span>
+        <span><i class="dot b"></i>Sisa ${cards.length?Math.max(cards.length-td.studied,0):0}</span>
+      </div>
+    </div>
+  </div>
+  <button class="cta" onclick="startStudy()">${td.studied>0?'Lanjutkan Belajar':'Mulai Belajar'} →</button>
+  <div class="quick-nav">
+    <button class="quick-item glass-secondary" onclick="go('decks')"><span class="qi">📚</span>Deck</button>
+    <button class="quick-item glass-secondary" onclick="go('stats')"><span class="qi">📊</span>Statistik</button>
+    <button class="quick-item glass-secondary" onclick="toggleFavFilter()"><span class="qi">⭐</span>Favorit</button>
+    <button class="quick-item glass-secondary" onclick="go('settings')"><span class="qi">⚙️</span>Pengaturan</button>
+  </div>
+  <div class="section-label"><span>Aktivitas Terakhir</span></div>
+  <button class="recent-card glass-secondary" onclick="${recentDeck?`startStudy(${recentDeck})`:'startStudy()'}">
+    <div class="recent-badge">📖</div>
+    <div class="recent-meta">
+      <div class="t">${recentDeck?decks[recentDeck].name:'Belum ada sesi'}</div>
+      <div class="s">${recentDeck?(state.decks[recentDeck].seen+' kartu dipelajari'):'Mulai sesi pertamamu'}</div>
+    </div>
+    <span class="chev">›</span>
+  </button>
+  <div class="footer-note"><span class="fname">Nothxy</span><br>日本語の語彙 — Dibuat dengan semangat belajar.</div>`;
+}
+
+// ---------- Decks View ----------
+let favOnly=false;
+
+function toggleFavFilter(){
+  favOnly=!favOnly;
+  go('decks');
+}
+
+function viewDecks(){
+  const rows=decks.map((d,i)=>{
+    const st=state.decks[i]||{seen:0,correct:0};
+    const pct=d.cards.length?Math.round(st.seen/d.cards.length*100):0;
+    const r=14,c=2*Math.PI*r,off=c-(pct/100)*c;
+    const col=pct>=80?'var(--accent-green)':pct>=50?'#D9A441':'var(--bg-lavender)';
+    return `<button class="deck-row glass-secondary" onclick="startStudy(${i})">
+      <div class="dnum">${i+1}</div>
+      <div class="dinfo"><div class="n">${d.name}</div><div class="c">${d.cards.length} kartu • ${st.seen>0?st.seen+' dipelajari':'belum dipelajari'}</div></div>
+      <div class="mini-ring"><svg width="36" height="36"><circle class="track" cx="18" cy="18" r="${r}"/><circle class="arc" cx="18" cy="18" r="${r}" stroke="${col}" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg></div>
+      <span class="chev">›</span>
+    </button>`;
+  }).join('');
+  return `
+  <div class="topbar">
+    <button class="icon-btn glass-floating" onclick="go('home')" aria-label="Kembali">←</button>
+    <div class="title">Daftar Deck<small>${decks.length} deck • ${cards.length} kartu</small></div>
+    <button class="icon-btn glass-floating" onclick="toggleFavFilter()" aria-label="Favorit">${favOnly?'⭐':'☆'}</button>
+  </div>
+  <div class="chips">
+    <button class="chip ${!favOnly?'on':''}" onclick="favOnly=false;render()">Semua</button>
+    <button class="chip ${favOnly?'on':''}" onclick="favOnly=true;render()">Favorit</button>
+  </div>
+  <div class="featured glass-primary" onclick="startStudy(0)">
+    <div class="thumb">🏯</div>
+    <div class="ft"><div class="n">Kosakata Nothxy</div><div class="d">${cards.length} kartu • ${decks.length} deck • Kanji + Hiragana</div></div>
+    <span class="go">›</span>
+  </div>
+  ${rows}`;
+}
+
+// ---------- Study View ----------
+function startStudy(deckIdx){
+  const i=deckIdx??0;
+  study={
+    deckIdx:i,
+    order:shuffle(decks[i].cards.map((_,j)=>j)),
+    pos:0,
+    answered:false,
+    correct:0,
+    wrong:0,
+    favs:study.favs
+  };
+  go('study');
+}
+
+function norm(s){
+  return (s||'').trim().toLowerCase()
+    .replace(/[！-～]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0))
+    .replace(/\s+/g,'');
+}
+
+function viewStudy(){
+  if(!decks.length)return '<div class="empty-note">Memuat kartu...</div>';
+  const d=decks[study.deckIdx];
+  const card=d.cards[study.order[study.pos]];
+  const total=d.cards.length;
+  const pct=Math.round((study.pos)/total*100);
+  const isFav=study.favs.has(card.kanji);
+  return `
+  <div class="study-head">
+    <div class="row">
+      <button class="icon-btn glass-floating" onclick="go('decks')" aria-label="Tutup">✕</button>
+      <div style="text-align:center"><div class="t">${d.name}</div><div class="c">${study.pos+1} / ${total}</div></div>
+      <button class="icon-btn glass-floating" onclick="toggleFav('${esc(card.kanji).replace(/'/g,"\\'")}')">${isFav?'⭐':'☆'}</button>
+    </div>
+    <div class="study-bar"><div class="f" style="width:${pct}%"></div></div>
+  </div>
+  <div class="flash-card glass-primary glass-strong">
+    <button class="star ${isFav?'on':''}" onclick="toggleFav('${esc(card.kanji).replace(/'/g,"\\'")}')">★</button>
+    <div class="kanji" style="${state.settings.font==='mincho'?'font-family:var(--font-serif)':''}">${esc(card.kanji)}</div>
+    <div class="reading" id="reading">${state.settings.showReading?esc(card.hiragana):''}</div>
+    <div class="hint">${state.settings.showReading?'':'Ketik bacaan hiragana di bawah'}</div>
+    <div class="arti" id="arti">${esc(card.arti)}</div>
+  </div>
+  <div class="answer-row">
+    <input id="ans" placeholder="がっこう" autocomplete="off" autocapitalize="none" ${study.answered?'disabled':''}
+      onkeydown="if(event.key==='Enter')checkAnswer()">
+    <button id="checkBtn" onclick="checkAnswer()" ${study.answered?'disabled':''}>Cek</button>
+  </div>
+  <div class="feedback" id="fb"></div>
+  <div class="study-nav">
+    <button onclick="studyPrev()">← Mundur</button>
+    <button onclick="studyNext()">${study.answered?'Lanjut King →':'Lanjut King'}</button>
+  </div>`;
+}
+
+function afterRender(){
+  if(view==='study'){
+    const inp=document.getElementById('ans');
+    if(inp&&!study.answered)inp.focus();
+  }
+}
+
+function toggleFav(k){
+  if(study.favs.has(k)) study.favs.delete(k);
+  else study.favs.add(k);
+  saveState();render();
+}
+
+function checkAnswer(){
+  if(study.answered)return;
+  const inp=document.getElementById('ans');
+  const btn=document.getElementById('checkBtn');
+  const fb=document.getElementById('fb');
+  const arti=document.getElementById('arti');
+  const val=norm(inp.value);
+  const ans=norm(decks[study.deckIdx].cards[study.order[study.pos]].hiragana);
+  if(!val)return;
+  
+  study.answered=true;
+  inp.disabled=true;btn.disabled=true;
+  const ok=val===ans;
+  inp.classList.add(ok?'ok':'no');
+  arti.classList.add('show');
+  fb.className='feedback show '+(ok?'ok':'no');
+  fb.textContent=ok?'✅ Benar!':'❌ Salah — jawaban: '+decks[study.deckIdx].cards[study.order[study.pos]].hiragana;
+  if(ok)study.correct++;else study.wrong++;
+  bumpDay(ok);
+  bumpDeck(study.deckIdx,ok);
+  saveState();
+}
+
+function studyNext(){
+  const total=decks[study.deckIdx].cards.length;
+  if(study.pos<total-1){
+    study.pos++;
+    study.answered=false;
+    render();
+  }
+  else go('stats');
+}
+
+function studyPrev(){
+  if(study.pos>0){
+    study.pos--;
+    study.answered=false;
+    render();
+  }
+}
+
+// ---------- Stats View ----------
+function viewStats(){
+  let tot=0,cor=0,wro=0;
+  Object.values(state.days).forEach(d=>{
+    tot+=d.studied;cor+=d.correct;wro+=d.wrong;
+  });
+  const acc=tot?Math.round(cor/tot*100):0;
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    days.push({
+      k:k,
+      label:d.toLocaleDateString('id-ID',{day:'numeric',month:'numeric'}),
+      n:(state.days[k]||{}).studied||0
+    });
+  }
+  const max=Math.max(1,...days.map(d=>d.n));
+  return `
+  <div class="topbar">
+    <button class="icon-btn glass-floating" onclick="go('home')" aria-label="Kembali">←</button>
+    <div class="title">Statistik<small>7 hari terakhir</small></div>
+    <span class="range-pill glass-secondary">7 hari</span>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card glass-secondary"><div class="ic b">📖</div><div class="v">${tot}</div><div class="l">Kartu Dipelajari</div></div>
+    <div class="stat-card glass-secondary"><div class="ic g">✅</div><div class="v">${cor}</div><div class="l">Jawaban Benar</div></div>
+    <div class="stat-card glass-secondary"><div class="ic r">✕</div><div class="v">${wro}</div><div class="l">Jawaban Salah</div></div>
+    <div class="stat-card glass-secondary"><div class="ic y">🎯</div><div class="v">${tot?acc+'%':'—'}</div><div class="l">Akurasi</div></div>
+  </div>
+  <div class="chart-card glass-secondary">
+    <div class="ct">Aktivitas Belajar</div>
+    <div class="bars">
+      ${days.map(d=>`<div class="bar-col"><div class="bar ${d.n>0?'has':''}" style="height:${Math.max(4,Math.round(d.n/max*92))}px" title="${d.n} kartu"></div><div class="bar-lab">${d.label}</div></div>`).join('')}
+    </div>
+  </div>
+  ${tot===0?'<div class="empty-note">Belum ada aktivitas belajar.<br>Mulai sesi pertamamu dari halaman utama 🌱</div>':''}`;
+}
+
+// ---------- Settings View ----------
+function viewSettings(){
+  const s=state.settings;
+  const fsVal=s.fs==='S'?'Kecil':s.fs==='L'?'Besar':'Sedang';
+  const fontVal=s.font==='mincho'?'Mincho (serif)':'Gothic (sans)';
+  return `
+  <div class="topbar">
+    <button class="icon-btn glass-floating" onclick="go('home')" aria-label="Kembali">←</button>
+    <div class="title">Pengaturan<small>Nothxy v1.0.0</small></div>
+    <span style="width:40px"></span>
+  </div>
+  <div class="group-label">Tampilan</div>
+  <div class="set-group glass-secondary">
+    <button class="set-row" onclick="cycleFs()">
+      <span class="si">☀️</span>
+      <div class="sl"><div class="n">Ukuran Teks</div><div class="v">${fsVal}</div></div>
+      <span class="sv">›</span>
+    </button>
+    <button class="set-row" onclick="cycleFont()">
+      <span class="si">あ</span>
+      <div class="sl"><div class="n">Font Jepang</div><div class="v">${fontVal}</div></div>
+      <span class="sv">›</span>
+    </button>
+  </div>
+  <div class="group-label">Belajar</div>
+  <div class="set-group glass-secondary">
+    <div class="set-row">
+      <span class="si">🔤</span>
+      <div class="sl"><div class="n">Tampilkan Hiragana</div><div class="v">Petunjuk bacaan di kartu</div></div>
+      <button class="toggle ${s.showReading?'on':''}" onclick="toggleSetting('showReading')" aria-label="Toggle hiragana"></button>
+    </div>
+    <div class="set-row">
+      <span class="si">🔊</span>
+      <div class="sl"><div class="n">Putar Audio Otomatis</div><div class="v">Belum tersedia</div></div>
+      <button class="toggle" disabled aria-label="Audio"></button>
+    </div>
+  </div>
+  <div class="footer-note"><span class="fname">Nothxy</span><br>日本語の語彙 • v1.0.0<br>✨ Dibuat dengan semangat belajar.</div>`;
+}
+
+function cycleFs(){
+  const order=['S','M','L'];
+  const cur=order.indexOf(state.settings.fs);
+  state.settings.fs=order[(cur+1)%order.length];
+  saveState();render();
+}
+
+function cycleFont(){
+  state.settings.font=state.settings.font==='gothic'?'mincho':'gothic';
+  saveState();render();
+}
+
+function toggleSetting(k){
+  state.settings[k]=!state.settings[k];
+  saveState();render();
+}
+
+// ---------- Splash / Video Gate ----------
+let audioStarted=false;
+function showSplash(){
+  const app=document.getElementById('app');
+  app.innerHTML=`
+  <div class="splash-overlay" id="splashOverlay">
+    <div class="splash-content glass glass-strong">
+      <div class="splash-logo">🎴</div>
+      <h1 class="splash-title">Nothxy</h1>
+      <p class="splash-sub">Kosakata Jepang</p>
+      <div class="splash-divider"></div>
+      <p class="splash-tag">日本語の語彙</p>
+      <p class="splash-desc">Belajar kosakata Jepang dengan cara yang lebih sederhana dan nyaman.</p>
+      <button class="splash-cta" onclick="startExperience()">Mulai Belajar →</button>
+      <p class="splash-note">🎬 Video background akan diputar otomatis</p>
+    </div>
+  </div>`;
+}
+function startExperience(){
+  if(audioStarted)return;
+  audioStarted=true;
+  const splash=document.getElementById('splashOverlay');
+  if(splash){
+    splash.style.opacity='0';
+    splash.style.transition='opacity .5s var(--ease)';
+    setTimeout(()=>splash.remove(),500);
+  }
+  startVideo();
+  document.body.classList.remove('locked');
+  render();
+}
+let videoFadeTimer=null;
+function startVideo(){
+  const video=document.getElementById('bgVideo');
+  const overlay=document.getElementById('fadeOverlay');
+  if(!video)return;
+  video.currentTime=0;
+  if(videoFadeTimer){clearInterval(videoFadeTimer);videoFadeTimer=null;}
+  // Ensure overlay is visible first (start white)
+  if(overlay){
+    overlay.style.display='block';
+    overlay.style.transition='none';
+    overlay.style.opacity='1';
+  }
+  const beginPlayback=()=>{
+    video.play().then(()=>{
+      // Fade out white overlay to reveal video
+      setTimeout(()=>{
+        if(overlay){
+          overlay.style.transition='opacity 1.5s ease';
+          overlay.style.opacity='0';
+        }
+      },100);
+      // Monitor for loop: fade to white near end, fade back in on restart
+      videoFadeTimer=setInterval(()=>{
+        if(!video||video.paused){clearInterval(videoFadeTimer);videoFadeTimer=null;return;}
+        const dur=video.duration;
+        if(!isFinite(dur)||dur<=0)return;
+        const remaining=dur-video.currentTime;
+        if(remaining<1.5&&remaining>0){
+          // Fade to white
+          if(overlay){
+            overlay.style.display='block';
+            overlay.style.transition='opacity 1.5s ease';
+            overlay.style.opacity='1';
+          }
+        }else if(remaining>2&&overlay&&overlay.style.opacity==='1'){
+          // Video restarted (looped), fade white out
+          overlay.style.transition='opacity 1.5s ease';
+          overlay.style.opacity='0';
+        }
+      },200);
+    }).catch(()=>{
+      if(overlay)overlay.style.display='none';
+    });
+  };
+  if(video.readyState>=2){
+    beginPlayback();
+  }else{
+    video.addEventListener('loadedmetadata',beginPlayback,{once:true});
+    video.load();
+  }
+}
+document.body.classList.add('locked');
+document.addEventListener('click',function unlockVideo(){
+  if(!audioStarted&&view==='splash')startExperience();
+},{once:true});
+
+// ---------- Boot ----------
+(async function(){
+  try{
+    await loadCards();
+    initAmbient();
+    showSplash();
+  }catch(e){
+    document.getElementById('app').innerHTML=
+      '<div class="empty-note">Gagal memuat kartu:<br>'+esc(e.message)+'</div>';
+  }
+})();
+</script>
+</body>
+</html>
